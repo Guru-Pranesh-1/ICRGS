@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Course Recommendation and Guidance System (ICRGS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+    <script src="https://unpkg.com/recharts@1.8.5/umd/Recharts.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Global Curricula Data and Recommendation Engine -->
+    <script src="data.js"></script>
+    <script src="engine.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0A0D14;
+            --bg-card: rgba(16, 22, 34, 0.78);
+            --bg-elevated: rgba(22, 30, 46, 0.95);
+            --border: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-primary: #5E56E3;
+            --accent-success: #05C493;
+            --accent-warning: #EAB308;
+            --accent-danger: #EF4444;
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #EAEFF5;
+            --bg-card: rgba(255, 255, 255, 0.88);
+            --bg-elevated: rgba(248, 250, 252, 0.98);
+            --border: rgba(0, 0, 0, 0.08);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --accent-primary: #4F46E5;
+            --accent-success: #059669;
+            --accent-warning: #D97706;
+            --accent-danger: #DC2626;
+            --text-primary: #1E293B;
+            --text-secondary: #475569;
+        }
+        [data-theme="light"] body {
+            background-color: var(--bg-primary);
+            background-image: radial-gradient(circle at 50% 0%, #D8E2F0 0%, transparent 60%);
+            color: var(--text-primary);
+        }
+        [data-theme="light"] .bg-\\[rgba\\(0\\,0\\,0\\,0\\.2\\)\\] { background-color: rgba(255,255,255,0.7) !important; }
+        [data-theme="light"] .bg-\\[rgba\\(0\\,0\\,0\\,0\\.3\\)\\] { background-color: rgba(255,255,255,0.85) !important; }
+        [data-theme="light"] .bg-\\[rgba\\(0\\,0\\,0\\,0\\.4\\)\\] { background-color: rgba(255,255,255,0.92) !important; }
+        [data-theme="light"] .bg-\\[rgba\\(0\\,0\\,0\\,0\\.5\\)\\] { background-color: rgba(255,255,255,0.96) !important; }
+        [data-theme="light"] .border-\\[rgba\\(255\\,255\\,255\\,0\\.1\\)\\] { border-color: rgba(0,0,0,0.12) !important; }
+        [data-theme="light"] .border-\\[rgba\\(255\\,255\\,255\\,0\\.05\\)\\] { border-color: rgba(0,0,0,0.06) !important; }
+        [data-theme="light"] .text-white { color: #111827 !important; }
+        [data-theme="light"] .text-\\[\\#A0A0A0\\] { color: #4B5563 !important; }
+        [data-theme="light"] .text-\\[\\#E8EDF5\\] { color: #1F2937 !important; }
+        [data-theme="light"] .glass-card { background: var(--bg-card) !important; border-color: var(--card-border) !important; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important; color: #111827 !important; }
+        [data-theme="light"] .modal-overlay { background: rgba(17, 24, 39, 0.5) !important; backdrop-filter: blur(8px) !important; }
+        [data-theme="light"] .slide-panel { background: var(--bg-elevated) !important; border-left-color: var(--border) !important; color: #111827 !important; }
+        [data-theme="light"] .hover\\:bg-\\[rgba\\(255\\,255\\,255\\,0\\.02\\)\\]:hover { background-color: rgba(0,0,0,0.03) !important; }
+        [data-theme="light"] .hover\\:bg-\\[rgba\\(255\\,255\\,255\\,0\\.05\\)\\]:hover { background-color: rgba(0,0,0,0.05) !important; }
+        [data-theme="light"] .hover\\:bg-\\[rgba\\(255\\,255\\,255\\,0\\.1\\)\\]:hover { background-color: rgba(0,0,0,0.08) !important; }
+        [data-theme="light"] .hover\\:text-white:hover { color: #111827 !important; }
+        [data-theme="light"] input { color: #111827 !important; background-color: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.15) !important; }
+        [data-theme="light"] select { color: #111827 !important; background-color: rgba(255,255,255,0.95) !important; border-color: rgba(0,0,0,0.15) !important; }
+        [data-theme="light"] option { color: #111827 !important; background-color: #FFFFFF !important; }
+
+        button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+            outline: 2px solid var(--accent-primary) !important;
+            outline-offset: 2px !important;
+        }
+
+        body { 
+            margin: 0; 
+            background-color: var(--bg-primary); 
+            background-image: radial-gradient(circle at 50% 0%, #121526 0%, transparent 60%);
+            color: var(--text-primary); 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh;
+        }
+        
+        .code-font { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-card {
+            background-color: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 300ms ease;
+        }
+        
+        .glass-card.interactive:hover {
+            cursor: pointer;
+            border-color: var(--accent-primary);
+            box-shadow: 0 8px 32px rgba(108, 99, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border);
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-success));
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide-panel {
+            position: fixed; right: 0; top: 0; bottom: 0; width: 420px; max-width: 90vw;
+            background: var(--bg-elevated); backdrop-filter: blur(20px); border-left: 1px solid var(--border);
+            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50; overflow-y: auto; padding: 24px; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .slide-panel.open { transform: translateX(0); }
+        
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        Babel.registerPreset('env-react', {
+            presets: [ Babel.availablePresets['env'], [Babel.availablePresets['react'], { runtime: "classic" }] ]
+        });
+    </script>
+    <script type="text/babel" data-presets="env-react">
+const { useState, useMemo, useEffect, useCallback } = React;
+const { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, CartesianGrid, Legend } = window.Recharts || {};
+
+// ── Shared Button Component ───────────────────────────────────
+function Button({ children, onClick, disabled, variant = 'primary', className = '', title = '' }) {
+  const base = "px-4 py-2 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2";
+  const variants = {
+    primary: "bg-[#5E56E3] hover:bg-[#4F46E5] text-white shadow-sm",
+    outline: "border border-[rgba(255,255,255,0.18)] hover:border-[#5E56E3] text-[#E2E8F0] hover:bg-[rgba(94,86,227,0.08)]",
+    danger: "bg-[#EF4444] hover:bg-[#DC2626] text-white shadow-sm",
+    ghost: "text-[#94A3B8] hover:text-[#E2E8F0] hover:bg-[rgba(255,255,255,0.05)]",
+    success: "bg-[#05C493] hover:bg-[#04AC81] text-white font-bold shadow-sm"
+  };
+  return (
+    <button onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`} title={title}>
+      {children}
+    </button>
+  );
+}
+
+// ── Landing Page ──────────────────────────────────────────────
+function LandingPage({ onContinueSaved, onCreateNew, onLoadDemo, hasSavedProfile, savedProfileMeta }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-4 py-12">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(94,86,227,0.08)_0%,transparent_70%)] rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div className="text-center z-10 max-w-4xl flex flex-col items-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgba(94,86,227,0.12)] border border-[rgba(94,86,227,0.25)] text-[#7E78EE] text-xs font-bold uppercase tracking-wider mb-6">
+          <span>🎓</span> Multi-Department Engineering Edition · 8 Disciplines
+        </div>
+        <h1 className="text-3xl md:text-5xl font-bold mb-6 leading-tight tracking-tight text-[#E2E8F0]">
+          Intelligent Course Recommendation <br/> and Guidance System
+        </h1>
+        <p className="text-sm md:text-base text-[#94A3B8] max-w-2xl mb-8 leading-relaxed">
+          Interactive prerequisite tree mapping, career pathway progress tracking, What-If academic scenario planning, and elective recommendations across <strong className="text-white">ECE, CSE, AIML, AIDS, IT, EEE, Mechanical, and Civil Engineering</strong>.
+        </p>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3.5 justify-center items-center w-full max-w-xl mb-7">
+          {hasSavedProfile && (
+            <Button onClick={onContinueSaved} variant="primary" className="w-full sm:w-auto px-6 py-3.5 text-base rounded-2xl shadow-[0_2px_12px_rgba(94,86,227,0.25)] hover:scale-105 transform font-bold">
+              ▶ Continue My Profile {savedProfileMeta ? `(${savedProfileMeta.name || 'Student'} - ${savedProfileMeta.dept})` : ''}
+            </Button>
+          )}
+          
+          <Button onClick={onCreateNew} variant={hasSavedProfile ? "outline" : "primary"} className="w-full sm:w-auto px-6 py-3.5 text-base rounded-2xl hover:scale-105 transform font-bold">
+            ✨ Create New Profile
+          </Button>
+          
+          <Button onClick={() => onLoadDemo("ECE")} variant="outline" className="w-full sm:w-auto px-6 py-3.5 text-base rounded-2xl border-[#05C493] text-[#05C493] hover:bg-[rgba(5,196,147,0.08)] hover:scale-105 transform font-bold">
+            ⚡ Try Interactive Demo
+          </Button>
+        </div>
+
+        {/* Quick Launchers for All 8 Department Fictional Profiles */}
+        <div className="w-full max-w-3xl p-5 rounded-2xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] mb-6 text-center">
+          <div className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider mb-3">
+            Or Explore Fictional Demo Student Profiles Across All 8 Engineering Branches:
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+            {Object.entries(window.DEMO_PROFILES_BY_DEPARTMENT || {}).map(([dKey, prof]) => (
+              <button key={dKey} onClick={() => onLoadDemo(dKey)}
+                className="p-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] hover:border-[#5E56E3] hover:bg-[rgba(94,86,227,0.1)] transition-all flex flex-col items-center gap-1 group text-center">
+                <div className="flex items-center gap-1.5 font-bold text-white group-hover:text-[#7E78EE]">
+                  <span className="text-base">{window.DEPARTMENTS[dKey]?.icon || '🎓'}</span>
+                  <span className="code-font">{dKey}</span>
+                </div>
+                <div className="text-xs text-white font-medium truncate w-full">{prof.name}</div>
+                <div className="text-[11px] text-[#05C493] font-semibold">{prof.cgpa} CGPA · 44 Credits</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* LocalStorage & Demo Disclaimer */}
+        <div className="p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] text-xs text-[#A0A0A0] max-w-xl text-center leading-relaxed">
+          🔒 <strong>Privacy & Demo Guarantee:</strong> All profile records run 100% locally in your browser's <code className="code-font text-[#7E78EE]">localStorage</code>. No official university IDs or remote server tracking required.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Course Detail Modal ───────────────────────────────────────
+function CourseDetailModal({ course, onClose, studentProfile }) {
+  if (!course) return null;
+  const dept = studentProfile?.department || "ECE";
+  const prereqCheck = window.checkPrerequisites(course.code, studentProfile.completedCourses, studentProfile.backlogs, dept);
+  const deptCourses = window.getDepartmentCourses(dept);
+  
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="glass-card w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <div className="text-[#7E78EE] font-bold text-xs tracking-widest uppercase mb-1">{course.category}</div>
+            <h2 className="text-2xl font-bold code-font text-white">{course.code}</h2>
+            <h3 className="text-base text-[#94A3B8] mt-0.5">{course.name}</h3>
+          </div>
+          <button onClick={onClose} className="text-[#94A3B8] hover:text-white text-2xl p-1">&times;</button>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-3 text-sm text-[#94A3B8] mb-6 p-3 bg-[rgba(0,0,0,0.3)] rounded-xl border border-[rgba(255,255,255,0.05)] text-center">
+          <div><div className="text-[10px] uppercase font-bold mb-0.5">Credits</div><span className="text-white font-bold">{course.credits} Cr</span></div>
+          <div><div className="text-[10px] uppercase font-bold mb-0.5">Category</div><span className="text-white font-bold text-xs truncate block">{course.category}</span></div>
+          <div><div className="text-[10px] uppercase font-bold mb-0.5">Difficulty</div><span className="text-white font-bold">{course.difficulty}</span></div>
+        </div>
+
+        <div className="mb-5">
+          <h4 className="font-bold text-xs text-[#94A3B8] mb-1.5 uppercase tracking-wider">Description & Importance</h4>
+          <p className="text-sm text-[#E2E8F0] mb-2 leading-relaxed">{course.description}</p>
+          {course.importance && <p className="text-xs text-[#05C493] italic">Why it matters: {course.importance}</p>}
+        </div>
+
+        {course.skillsLearned && course.skillsLearned.length > 0 && (
+          <div className="mb-5">
+            <h4 className="font-bold text-xs text-[#94A3B8] mb-2 uppercase tracking-wider">Key Skills Acquired</h4>
+            <div className="flex flex-wrap gap-1.5">
+              {course.skillsLearned.map(s => <span key={s} className="px-2 py-0.5 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded text-xs text-[#E2E8F0]">{s}</span>)}
+            </div>
+          </div>
+        )}
+
+        <div className="mb-5">
+          <h4 className="font-bold text-xs text-[#94A3B8] mb-2 uppercase tracking-wider">Prerequisites Status</h4>
+          {!course.prerequisites || course.prerequisites.length === 0 ? (
+            <p className="text-xs text-[#05C493] bg-[rgba(5,196,147,0.08)] p-2.5 rounded-lg border border-[rgba(5,196,147,0.25)]">✅ None required — Immediately accessible.</p>
+          ) : (
+            <div className="space-y-2">
+              {course.prerequisites.map(p => {
+                const comp = studentProfile.completedCourses?.[p];
+                const done = comp && comp.grade && comp.grade !== 'F' && comp.grade !== 'Not Attempted';
+                const pCourse = deptCourses.find(x => x.code === p);
+                return (
+                  <div key={p} className={`p-2.5 rounded-lg border flex justify-between items-center text-xs ${done ? 'bg-[rgba(5,196,147,0.06)] border-[#05C493]' : 'bg-[rgba(239,68,68,0.06)] border-[#EF4444]'}`}>
+                    <span className="code-font font-bold text-white">{p} — {pCourse?.name || p}</span>
+                    <span className={done ? "text-[#05C493] font-bold" : "text-[#EF4444] font-bold"}>{done ? '✅ Completed' : '❌ Incomplete'}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="pt-3 border-t border-[rgba(255,255,255,0.1)]">
+          {prereqCheck.eligible ? (
+            <div className="text-[#05C493] text-sm font-bold flex items-center gap-2"><span>✅</span> Eligible for enrollment</div>
+          ) : (
+            <div className="text-[#EF4444] text-sm font-bold flex items-center gap-2"><span>🔒</span> Locked (Missing required prerequisites)</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SVG Roadmap View ──────────────────────────────────────────
+function RoadmapView({ trackId, completedCourses, backlogs, department, setSelectedCourse }) {
+  const dept = (department || "ECE").toUpperCase();
+  const tracks = window.getDepartmentCareerTracks(dept);
+  const track = tracks[trackId];
+  if (!track || !track.courseSequence) return null;
+  const sequence = track.courseSequence;
+  const deptCourses = window.getDepartmentCourses(dept);
+  
+  const nodeStatus = (code) => {
+    const comp = completedCourses?.[code];
+    if (comp && comp.grade && comp.grade !== "F" && comp.grade !== "Not Attempted") return "completed";
+    if ((backlogs || []).includes(code)) return "backlog";
+    const check = window.checkPrerequisites(code, completedCourses, backlogs, dept);
+    if (check.eligible) return "eligible";
+    return "locked";
+  };
+
+  const nodeColors = { completed: "#05C493", backlog: "#EF4444", eligible: "#EAB308", locked: "#64748B" };
+
+  return (
+    <div className="overflow-x-auto py-4 custom-scrollbar">
+      <svg width={Math.max(800, sequence.length * 190)} height="160" viewBox={`0 0 ${sequence.length * 190} 160`}>
+        <defs>
+          <marker id="arrow-completed" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#05C493" /></marker>
+          <marker id="arrow-locked" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#64748B" /></marker>
+        </defs>
+        {sequence.map((code, i) => {
+          const course = deptCourses.find(c => c.code === code);
+          const status = nodeStatus(code);
+          const x = i * 190 + 80;
+          const y = 80;
+          return (
+            <g key={code} onClick={() => course && setSelectedCourse(course)} style={{cursor:"pointer"}} className="transition-transform hover:-translate-y-1">
+              {i < sequence.length - 1 && (
+                <line x1={x + 40} y1={y} x2={x + 150} y2={y}
+                  stroke={status === "completed" ? "#05C493" : "#64748B"}
+                  strokeWidth="2.5" markerEnd={`url(#arrow-${status === 'completed' ? 'completed' : 'locked'})`} />
+              )}
+              <circle cx={x} cy={y} r={38} fill={nodeColors[status] + "22"} stroke={nodeColors[status]} strokeWidth="2.5" />
+              <text x={x} y={y - 8} textAnchor="middle" fill={nodeColors[status]} fontSize="12" fontWeight="bold" className="code-font">{code}</text>
+              <text x={x} y={y + 12} textAnchor="middle" fontSize="14">
+                {status === "completed" ? "✅" : status === "backlog" ? "❌" : status === "eligible" ? "🟡" : "🔒"}
+              </text>
+              <text x={x} y={y + 60} textAnchor="middle" fill="#A0A0A0" fontSize="10">{course ? course.name.split(" ").slice(0, 3).join(" ") : code}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// ── Onboarding Wizard ──────────────────────────────────────────
+function Onboarding({ profile, setProfile, onComplete, onLoadDemo, onBackToLanding }) {
+  const [step, setStep] = useState(1);
+  const deptMeta = window.getDepartmentMeta(profile.department || "ECE");
+  const deptCourses = window.getDepartmentCourses(profile.department || "ECE");
+  const deptTracks = window.getDepartmentCareerTracks(profile.department || "ECE");
+
+  const isComplete1 = Boolean(profile.name && profile.name.trim() !== "" && profile.department && profile.schoolBackground);
+
+  const handleNextStep1 = () => {
+    if (!profile.registerNumber || profile.registerNumber.trim() === '') {
+      setProfile({ ...profile, registerNumber: `${profile.department}-STUDENT` });
+    }
+    setStep(2);
+  };
+
+  const handleDepartmentSelect = (deptKey) => {
+    if (profile.department !== deptKey) {
+      setProfile({
+        ...profile,
+        department: deptKey,
+        completedCourses: {},
+        backlogs: [],
+        careerInterests: []
+      });
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto pt-10 px-4 pb-20">
+      <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
+        <Button onClick={onBackToLanding} variant="outline" className="text-xs border-[rgba(255,255,255,0.25)] text-white hover:bg-[rgba(255,255,255,0.1)] py-1.5 px-3 flex items-center gap-1.5" title="Return to Landing Page">
+          ← Back to Home
+        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => onLoadDemo(profile.department || "ECE")} variant="outline" className="text-xs border-[#05C493] text-[#05C493] hover:bg-[rgba(5,196,147,0.1)] py-1.5 px-3">
+            ⚡ Load Demo Student ({window.getDepartmentDemoProfile(profile.department)?.name || 'Alex'} - {profile.department || 'ECE'})
+          </Button>
+          <span className="text-xs text-[#94A3B8] font-medium">Step {step} of 3</span>
+        </div>
+      </div>
+
+      <div className="text-center mb-8">
+        <div className="w-14 h-14 bg-[#5E56E3] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-sm">🧭</div>
+        <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">ICRGS Academic Setup</h1>
+        <p className="text-sm text-[#94A3B8]">Configure your engineering profile across 8 supported departments.</p>
+      </div>
+
+      <div className="flex gap-2 mb-8">
+        {[1, 2, 3].map(s => (
+          <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${step >= s ? 'bg-[#5E56E3]' : 'bg-[rgba(255,255,255,0.1)]'}`} />
+        ))}
+      </div>
+
+      {/* STEP 1: Basic Information & Department */}
+      {step === 1 && (
+        <div className="glass-card space-y-6 animate-[fadeIn_0.4s_ease]">
+          <h2 className="text-lg font-bold text-white">1. Basic Information & Department</h2>
+          
+          <div>
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-wider">Full Name *</label>
+            <input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} placeholder="e.g. Alex Morgan" className="w-full mt-1.5 bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3 text-white outline-none focus:border-[#5E56E3] transition-colors" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-wider">Demo / Register ID (Optional)</label>
+            <input type="text" value={profile.registerNumber} onChange={e => setProfile({...profile, registerNumber: e.target.value})} placeholder={`e.g. ${profile.department || 'ENG'}-2024-001 (auto-generated if empty)`} className="w-full mt-1.5 bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3 text-white outline-none focus:border-[#5E56E3] transition-colors" />
+            <p className="text-[11px] text-[#94A3B8] mt-1">Fictional ID for demonstration; no university registration number needed.</p>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2 block">School Background *</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {[ {id: 'Computer Science', i: '💻'}, {id: 'Biology', i: '🧬'}, {id: 'Commerce', i: '📈'}, {id: 'Pure Science', i: '⚗️'}, {id: 'Mathematics', i: '➕'} ].map(bg => (
+                <button key={bg.id} onClick={() => setProfile({...profile, schoolBackground: bg.id})} 
+                  className={`p-2.5 text-left border rounded-xl text-xs font-medium transition-all ${profile.schoolBackground === bg.id ? 'border-[#05C493] bg-[rgba(5,196,147,0.1)] text-[#05C493]' : 'border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.3)] hover:border-[rgba(255,255,255,0.3)]'}`}>
+                  {bg.i} {bg.id}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Department Selection Grid */}
+          <div>
+            <div className="flex justify-between items-center mb-2.5">
+              <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-wider">Select Department Discipline *</label>
+              <span className="text-[11px] text-[#05C493] font-semibold">8 Departments Supported</span>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {Object.entries(window.DEPARTMENTS || {}).map(([key, d]) => {
+                const isSelected = profile.department === key;
+                const deptCourses = window.getDepartmentCourses(key);
+                const calcCourseCount = deptCourses.length || d.courseCount || 48;
+                const calcCreditTotal = deptCourses.reduce((sum, c) => sum + (c.credits || 0), 0) || d.catalogueCredits || 192;
+                
+                return (
+                  <div key={key} 
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleDepartmentSelect(key)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDepartmentSelect(key); } }}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 outline-none flex flex-col justify-between ${
+                      isSelected 
+                        ? 'border-[#5E56E3] bg-[rgba(94,86,227,0.14)] shadow-sm ring-1 ring-[#5E56E3]' 
+                        : 'border-[rgba(255,255,255,0.08)] bg-[rgba(0,0,0,0.3)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.02)]'
+                    }`}>
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)]">{d.icon}</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-base text-white code-font">{key}</span>
+                            <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-[rgba(94,86,227,0.12)] text-[#7E78EE] border border-[rgba(94,86,227,0.25)]">
+                              {d.sampleType || "Curated Sample"}
+                            </span>
+                          </div>
+                          <div className="text-xs text-[#94A3B8] mt-0.5 leading-snug">{d.name}</div>
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border text-xs transition-colors ${
+                        isSelected ? 'bg-[#5E56E3] border-[#5E56E3] text-white font-bold' : 'border-[rgba(255,255,255,0.2)] text-transparent'
+                      }`}>
+                        ✓
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2.5 border-t border-[rgba(255,255,255,0.08)] mt-auto">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        isSelected ? 'bg-[#5E56E3] text-white' : 'bg-[rgba(255,255,255,0.08)] text-white'
+                      }`}>
+                        {calcCourseCount} courses
+                      </span>
+                      <span className="text-xs text-[#05C493] font-medium">
+                        {calcCreditTotal} sample credits
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Department Disclaimer Box */}
+            <div className="mt-4 p-3.5 rounded-xl bg-[rgba(94,86,227,0.08)] border border-[rgba(94,86,227,0.2)] text-xs text-[#E2E8F0] leading-relaxed">
+              ℹ️ <strong>Selected Discipline: {deptMeta.name} ({profile.department})</strong>
+              <div className="text-[11px] text-[#94A3B8] mt-1">{deptMeta.disclaimer}</div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button onClick={onBackToLanding} variant="outline" className="w-1/3 py-3 border-[rgba(255,255,255,0.2)] text-[#94A3B8] hover:text-white">← Home</Button>
+            <Button onClick={handleNextStep1} disabled={!isComplete1} className="w-2/3 py-3 text-base">Next Step (Academic Status) →</Button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 2: Academic Status & Backlogs */}
+      {step === 2 && (
+        <div className="glass-card space-y-6 animate-[fadeIn_0.4s_ease]">
+          <h2 className="text-lg font-bold text-white">2. Academic Status ({profile.department})</h2>
+          
+          <div>
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-wider block mb-1">Baseline Overall CGPA (0.0 - 10.0)</label>
+            <p className="text-xs text-[#94A3B8] mb-2">Enter your cumulative grade point average (leave 0.0 if new student):</p>
+            <input type="number" min="0" max="10" step="0.01" value={profile.cgpa !== undefined ? profile.cgpa : ''} 
+                onChange={e => setProfile({...profile, cgpa: parseFloat(e.target.value) || 0})} 
+                className="w-full bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.1)] rounded-xl p-3 text-white text-lg font-bold outline-none focus:border-[#5E56E3]" placeholder="e.g. 8.5" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-[#94A3B8] uppercase tracking-wider block mb-1">Active Arrears / Backlogs ({profile.department})</label>
+            <p className="text-xs text-[#94A3B8] mb-2">Check any courses attempted but not yet cleared. Leave blank if none.</p>
+            
+            <div className="max-h-56 overflow-y-auto border border-[rgba(255,255,255,0.1)] rounded-xl p-2 space-y-1 bg-[rgba(0,0,0,0.3)] custom-scrollbar">
+              {deptCourses.map(c => {
+                const isSelected = (profile.backlogs || []).includes(c.code);
+                return (
+                  <label key={c.code} className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer text-xs transition-colors ${isSelected ? 'bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.25)]' : 'hover:bg-[rgba(255,255,255,0.03)] border border-transparent'}`}>
+                    <input type="checkbox" checked={isSelected} className="accent-[#EF4444] w-4 h-4 cursor-pointer" onChange={(e) => {
+                      const newBacklogs = e.target.checked 
+                        ? [...(profile.backlogs || []), c.code] 
+                        : (profile.backlogs || []).filter(b => b !== c.code);
+                      const nextCompleted = { ...(profile.completedCourses || {}) };
+                      if (e.target.checked) {
+                        nextCompleted[c.code] = { grade: 'F', semester: c.semester, credits: c.credits };
+                      } else if (nextCompleted[c.code]?.grade === 'F') {
+                        delete nextCompleted[c.code];
+                      }
+                      setProfile({...profile, backlogs: newBacklogs, completedCourses: nextCompleted});
+                    }}/>
+                    <span className="code-font font-bold text-[#7E78EE]">{c.code}</span>
+                    <span className={isSelected ? 'text-[#EF4444] font-bold' : 'text-[#94A3B8]'}>{c.name} ({c.credits} Credits)</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button onClick={() => setStep(1)} variant="outline" className="w-1/3">← Back</Button>
+            <Button onClick={() => setStep(3)} className="w-2/3">Next Step (Career Track) →</Button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 3: Career Track Specialization */}
+      {step === 3 && (
+        <div className="glass-card space-y-6 animate-[fadeIn_0.4s_ease]">
+          <h2 className="text-lg font-bold text-white">3. Primary Career Pathway ({profile.department})</h2>
+          <p className="text-xs text-[#94A3B8]">Select your target career track to personalize elective rankings and readiness analytics:</p>
+          
+          <div className="space-y-3">
+            {Object.entries(deptTracks || {}).map(([id, t]) => {
+              const isSelected = profile.careerInterests?.[0] === id;
+              return (
+                <button key={id} onClick={() => setProfile({...profile, careerInterests: [id]})} 
+                  className={`w-full p-4 flex items-center gap-4 border rounded-xl text-left transition-all ${isSelected ? 'border-[#EAB308] bg-[rgba(234,179,8,0.1)] shadow-sm' : 'border-[rgba(255,255,255,0.08)] bg-[rgba(0,0,0,0.3)] hover:border-[rgba(255,255,255,0.2)]'}`}>
+                  <span className="text-2xl">{t.icon}</span>
+                  <div className="flex-1">
+                    <div className="font-bold text-sm text-white">{id}</div>
+                    <div className="text-[11px] text-[#94A3B8] mt-0.5">{t.roles?.slice(0, 2).join(", ")}</div>
+                  </div>
+                  {isSelected && <span className="text-[#EAB308] font-bold text-lg">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button onClick={() => setStep(2)} variant="outline" className="w-1/3">← Back</Button>
+            <Button onClick={() => {
+              const personalProfile = { ...profile, isDemo: false };
+              setProfile(personalProfile);
+              try {
+                localStorage.setItem('icrgs_saved_personal_profile', JSON.stringify(personalProfile));
+                localStorage.setItem('icrgs_student_profile', JSON.stringify(personalProfile));
+                localStorage.setItem('icrgs_active_session_profile', JSON.stringify(personalProfile));
+              } catch(e) {}
+              onComplete();
+            }} disabled={!profile.careerInterests || profile.careerInterests.length === 0} className="w-2/3">Enter Dashboard 🚀</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Curriculum Graph Component ─────────────────────────────────────
+function CurriculumGraph({ profile, onClose, setSelectedCourse }) {
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [dims, setDims] = useState({ width: 2600, height: 1600 });
+  const dept = profile?.department || "ECE";
+  const deptCourses = window.getDepartmentCourses(dept);
+  
+  useEffect(() => {
+    const depths = {};
+    let changed = true;
+    deptCourses.forEach(c => depths[c.code] = 0);
+    
+    let iterations = 0;
+    while(changed && iterations < 20) {
+      changed = false;
+      iterations++;
+      deptCourses.forEach(c => {
+        if (!c.prerequisites || c.prerequisites.length === 0) return;
+        const validPrereqDepths = c.prerequisites.map(p => depths[p] !== undefined ? depths[p] : 0);
+        const maxPrereqDepth = Math.max(...validPrereqDepths);
+        if (depths[c.code] !== maxPrereqDepth + 1) {
+          depths[c.code] = maxPrereqDepth + 1;
+          changed = true;
+        }
+      });
+    }
+    
+    const columns = {};
+    deptCourses.forEach(c => {
+      const d = depths[c.code] || 0;
+      if (!columns[d]) columns[d] = [];
+      columns[d].push(c);
+    });
+    
+    const gapX = 330;
+    const gapY = 115;
+    
+    const newNodes = [];
+    const newEdges = [];
+    const nodePositions = {};
+    
+    const maxCoursesInCol = Math.max(...Object.values(columns).map(col => col.length), 1);
+    const maxD = Math.max(...Object.keys(columns).map(Number), 0);
+    const totalHeight = maxCoursesInCol * gapY;
+    const calcWidth = Math.max(2600, (maxD + 1) * gapX + 260);
+    const calcHeight = Math.max(1600, totalHeight + 240);
+    setDims({ width: calcWidth, height: calcHeight });
+
+    Object.keys(columns).forEach(depth => {
+      const colCourses = columns[depth];
+      const d = parseInt(depth);
+      const colHeight = colCourses.length * gapY;
+      const startY = (totalHeight - colHeight) / 2 + 100;
+      
+      colCourses.forEach((course, idx) => {
+        const x = d * gapX + 80;
+        const y = startY + (idx * gapY);
+        nodePositions[course.code] = { x, y, course, depth: d };
+        newNodes.push({ id: course.code, x, y, course, depth: d });
+      });
+    });
+    
+    deptCourses.forEach(course => {
+      if (course.prerequisites) {
+        course.prerequisites.forEach(pre => {
+          if (nodePositions[pre] && nodePositions[course.code]) {
+            newEdges.push({
+              source: nodePositions[pre],
+              target: nodePositions[course.code]
+            });
+          }
+        });
+      }
+    });
+    
+    setNodes(newNodes);
+    setEdges(newEdges);
+  }, [profile.department]);
+  
+  return (
+    <div className="modal-overlay z-50 flex items-center justify-center p-4">
+      <div className="bg-[var(--bg-primary)] w-full h-full rounded-2xl border border-[var(--card-border)] flex flex-col relative overflow-hidden">
+        <div className="flex flex-wrap justify-between items-center p-5 border-b border-[var(--card-border)] z-10 bg-[var(--bg-primary)] gap-3">
+          <div>
+            <h2 className="text-xl font-bold flex items-center gap-2 text-white">🕸️ Prerequisite Tree & Curriculum Graph ({dept})</h2>
+            <p className="text-xs text-[#94A3B8] mt-0.5">Topological dependency progression across 48 courses (192 credits). Click any subject for complete details.</p>
+          </div>
+          
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(5,196,147,0.1)] border border-[#05C493] text-[#05C493]">
+              <span>✅</span> Passed
+            </span>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(239,68,68,0.1)] border border-[#EF4444] text-[#EF4444]">
+              <span>❌</span> Backlog
+            </span>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(94,86,227,0.15)] border border-[#5E56E3] text-[#7E78EE]">
+              <span>🟡</span> Eligible
+            </span>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#94A3B8]">
+              <span>🔒</span> Locked
+            </span>
+            <button onClick={onClose} className="text-2xl text-[#94A3B8] hover:text-white p-2 leading-none">&times;</button>
+          </div>
+        </div>
+        
+        <div className="flex-1 overflow-auto relative p-8 custom-scrollbar">
+          <svg className="absolute top-0 left-0" style={{width: `${dims.width}px`, height: `${dims.height}px`, pointerEvents: 'none'}}>
+            {edges.map((edge, i) => {
+              const sx = edge.source.x + 200;
+              const sy = edge.source.y + 36;
+              const tx = edge.target.x;
+              const ty = edge.target.y + 36;
+              return (
+                <path key={i} d={`M ${sx} ${sy} C ${sx + 75} ${sy}, ${tx - 75} ${ty}, ${tx} ${ty}`} fill="none" stroke="rgba(94,86,227,0.35)" strokeWidth="2.5" />
+              );
+            })}
+          </svg>
+          
+          <div className="relative" style={{width: `${dims.width}px`, height: `${dims.height}px`}}>
+            {nodes.map(node => {
+              const comp = profile.completedCourses?.[node.id];
+              const isPassed = comp && comp.grade && comp.grade !== 'F' && comp.grade !== 'Not Attempted';
+              const isBacklog = (profile.backlogs || []).includes(node.id) || comp?.grade === 'F';
+              const prereqCheck = window.checkPrerequisites(node.id, profile.completedCourses, profile.backlogs, dept);
+              const isEligible = !isPassed && !isBacklog && prereqCheck.eligible;
+              const isLocked = !isPassed && !isBacklog && !prereqCheck.eligible;
+              
+              let cardStyle = "bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.12)] text-[#94A3B8]";
+              let icon = "🔒";
+              if (isPassed) {
+                cardStyle = "bg-[rgba(5,196,147,0.12)] border-[#05C493] text-white";
+                icon = "✅";
+              } else if (isBacklog) {
+                cardStyle = "bg-[rgba(239,68,68,0.14)] border-[#EF4444] text-white";
+                icon = "❌";
+              } else if (isEligible) {
+                cardStyle = "bg-[rgba(94,86,227,0.16)] border-[#5E56E3] text-white";
+                icon = "🟡";
+              }
+
+              return (
+                <div key={node.id} 
+                  className={`absolute w-[200px] p-3.5 rounded-xl border backdrop-blur-md cursor-pointer transition-transform hover:scale-105 shadow-md ${cardStyle}`}
+                  style={{left: node.x, top: node.y}}
+                  onClick={() => setSelectedCourse(node.course)}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold code-font text-xs text-white">{node.id}</span>
+                    <span className="text-xs">{icon}</span>
+                  </div>
+                  <div className="text-xs text-[#E8EDF5] truncate font-semibold">{node.course.name}</div>
+                  <div className="text-[10px] text-[#A0A0A0] mt-1 flex justify-between items-center">
+                    <span className="truncate max-w-[115px]">{node.course.category}</span>
+                    <span className="font-bold text-[#E2E8F0]">{node.course.credits} Cr</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Dashboard Component ──────────────────────────────────────────
+function Dashboard({ profile, setProfile, setCurrentView, savedPersonalProfile, onReturnToPersonal }) {
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const [graphOpen, setGraphOpen] = useState(false);
+  
+  const dept = (profile?.department || "ECE").toUpperCase();
+  const deptMeta = window.getDepartmentMeta(dept);
+  const deptCourses = window.getDepartmentCourses(dept);
+  const deptTracks = window.getDepartmentCareerTracks(dept);
+  const creditReqs = window.getDepartmentCreditRequirements(dept);
+
+  const isDemoProfile = useMemo(() => {
+    if (profile?.isDemo === true) return true;
+    if (profile?.isDemo === false) return false;
+    if (profile?.registerNumber && profile.registerNumber.includes("DEMO")) return true;
+    if (window.DEMO_PROFILES_BY_DEPARTMENT && Object.values(window.DEMO_PROFILES_BY_DEPARTMENT).some(
+      p => p.name === profile?.name && p.department === profile?.department
+    )) return true;
+    return false;
+  }, [profile]);
+
+  // Keyword Matcher State
+  const [keywordQuery, setKeywordQuery] = useState("");
+  const [keywordMatches, setKeywordMatches] = useState([]);
+
+  useEffect(() => {
+    if (keywordQuery.trim().length > 1 && window.matchCoursesToGoal) {
+      setKeywordMatches(window.matchCoursesToGoal(keywordQuery, profile.completedCourses, profile.backlogs, dept).slice(0, 6));
+    } else {
+      setKeywordMatches([]);
+    }
+  }, [keywordQuery, profile, dept]);
+  
+  // What-If Simulation State
+  const [plannedCourses, setPlannedCourses] = useState([]);
+  const [simulationResult, setSimulationResult] = useState(null);
+
+  // Dynamic Academic Calculations
+  const creditData = useMemo(() => window.calculateCredits(profile.completedCourses, dept), [profile.completedCourses, dept]);
+  
+  const dynamicCGPA = useMemo(() => {
+    const calc = window.calculateCGPA(profile.completedCourses, dept);
+    return calc > 0 ? calc : (profile.cgpa || 0.0);
+  }, [profile.completedCourses, profile.cgpa, dept]);
+
+  const recommendations = useMemo(() => {
+    return window.scoreAndRankCourses(profile, profile.completedCourses, profile.backlogs, profile.careerInterests, dept);
+  }, [profile, dept]);
+
+  const alerts = useMemo(() => {
+    return window.generateAlerts(profile.completedCourses, profile.backlogs, profile.careerInterests, creditData, dept);
+  }, [profile, creditData, dept]);
+
+  // Exact 4-part Partition of Department Catalogue (Zero double-counting, sum = total catalogue)
+  const pieData = useMemo(() => {
+    const comp = profile.completedCourses || {};
+    const bLogs = profile.backlogs || [];
+
+    let completedCount = 0;
+    let backlogCount = 0;
+    let eligibleCount = 0;
+    let lockedCount = 0;
+
+    deptCourses.forEach(c => {
+      const isPassed = comp[c.code] && comp[c.code].grade && comp[c.code].grade !== 'F' && comp[c.code].grade !== 'Not Attempted';
+      const isBacklog = bLogs.includes(c.code) || comp[c.code]?.grade === 'F';
+
+      if (isPassed) {
+        completedCount++;
+      } else if (isBacklog) {
+        backlogCount++;
+      } else {
+        const check = window.checkPrerequisites(c.code, comp, bLogs, dept);
+        if (check.eligible) {
+          eligibleCount++;
+        } else {
+          lockedCount++;
+        }
+      }
+    });
+
+    return [
+      { name: "Completed", value: completedCount, fill: "#05C493" },
+      { name: "Backlog", value: backlogCount, fill: "#EF4444" },
+      { name: "Eligible", value: eligibleCount, fill: "#5E56E3" },
+      { name: "Locked", value: lockedCount, fill: "rgba(255,255,255,0.15)" }
+    ];
+  }, [profile, deptCourses, dept]);
+
+  const barData = useMemo(() => {
+    const comp = profile.completedCourses || {};
+    return Object.entries(comp)
+      .filter(([, d]) => d.grade && d.grade !== 'F' && d.grade !== 'Not Attempted')
+      .map(([code, data]) => ({ course: code, points: window.GRADE_POINTS[data.grade] || 0 }));
+  }, [profile.completedCourses]);
+
+  const radarData = useMemo(() => {
+    return Object.keys(deptTracks).map(track => ({
+      track: track.split(" ")[0],
+      readiness: window.calcTrackReadiness(track, profile.completedCourses, profile.backlogs, dept)
+    }));
+  }, [profile, deptTracks, dept]);
+
+  const stackedBarData = useMemo(() => {
+    const cats = creditReqs.byCategory || {};
+    return Object.keys(cats).map(cat => ({
+      category: cat.replace('Foundation ', '').replace(' Engineering', '').replace(' Elective', ''),
+      Earned: creditData.earned[cat] || 0,
+      Remaining: Math.max(0, (cats[cat] || 0) - (creditData.earned[cat] || 0))
+    }));
+  }, [creditData, creditReqs]);
+
+  const toggleGrade = (code, grade) => {
+    const next = { ...(profile.completedCourses || {}) };
+    let nextBacklogs = [...(profile.backlogs || [])];
+
+    if (next[code] && next[code].grade === grade) {
+      delete next[code];
+      nextBacklogs = nextBacklogs.filter(b => b !== code);
+    } else {
+      const course = deptCourses.find(c => c.code === code);
+      next[code] = { grade, semester: profile.currentSemester || 1, credits: course?.credits || 4 };
+      if (grade === 'F') {
+        if (!nextBacklogs.includes(code)) nextBacklogs.push(code);
+      } else {
+        nextBacklogs = nextBacklogs.filter(b => b !== code);
+      }
+    }
+    const updated = {...profile, completedCourses: next, backlogs: nextBacklogs};
+    setProfile(updated);
+    if (!isDemoProfile) {
+      try {
+        localStorage.setItem('icrgs_saved_personal_profile', JSON.stringify(updated));
+        localStorage.setItem('icrgs_student_profile', JSON.stringify(updated));
+        localStorage.setItem('icrgs_active_session_profile', JSON.stringify(updated));
+      } catch(e) {}
+    } else {
+      try {
+        localStorage.setItem('icrgs_active_session_profile', JSON.stringify(updated));
+      } catch(e) {}
+    }
+  };
+
+  const handleSimulate = () => {
+    const result = window.simulateSemester(plannedCourses, profile);
+    setSimulationResult(result);
+  };
+
+  const handleDepartmentChange = (newDept) => {
+    if (newDept === dept) return;
+    if (isDemoProfile) {
+      const demo = window.getDepartmentDemoProfile(newDept);
+      if (demo) {
+        const demoWithFlag = { ...demo, isDemo: true };
+        setProfile(demoWithFlag);
+        setPlannedCourses([]);
+        setSimulationResult(null);
+        try {
+          localStorage.setItem('icrgs_active_session_profile', JSON.stringify(demoWithFlag));
+        } catch (e) {}
+        return;
+      }
+    }
+    const confirmed = window.confirm(`Switch active department to ${newDept}? This will load the ${newDept} course catalogue.`);
+    if (confirmed) {
+      const defaultTrack = Object.keys(window.getDepartmentCareerTracks(newDept))[0] || "";
+      const updated = {
+        ...profile,
+        department: newDept,
+        careerInterests: [defaultTrack],
+        completedCourses: {},
+        backlogs: [],
+        isDemo: false
+      };
+      setProfile(updated);
+      setPlannedCourses([]);
+      setSimulationResult(null);
+      try {
+        localStorage.setItem('icrgs_saved_personal_profile', JSON.stringify(updated));
+        localStorage.setItem('icrgs_student_profile', JSON.stringify(updated));
+        localStorage.setItem('icrgs_active_session_profile', JSON.stringify(updated));
+      } catch (e) {}
+    }
+  };
+
+  const handleSelectDemoProfile = (deptKey) => {
+    const demo = window.getDepartmentDemoProfile(deptKey);
+    if (demo) {
+      const demoWithFlag = { ...demo, isDemo: true };
+      setProfile(demoWithFlag);
+      setPlannedCourses([]);
+      setSimulationResult(null);
+      try {
+        localStorage.setItem('icrgs_active_session_profile', JSON.stringify(demoWithFlag));
+      } catch (e) {}
+    }
+  };
+
+  const exportToPDF = () => {
+    const element = document.getElementById('dashboard-content');
+    const opt = {
+      margin: 0.4,
+      filename: `Academic_Portfolio_${profile.registerNumber || dept}_${dept}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'in', format: 'a3', orientation: 'landscape' }
+    };
+    if (window.html2pdf) {
+      window.html2pdf().set(opt).from(element).save();
+    } else {
+      alert("PDF exporter is loading. Please try again in a moment.");
+    }
+  };
+
+  // Group Courses by Category
+  const categoriesList = useMemo(() => {
+    const set = new Set();
+    deptCourses.forEach(c => set.add(c.category));
+    return Array.from(set);
+  }, [deptCourses]);
+
+  return (
+    <div id="dashboard-content" className="max-w-[1440px] mx-auto pt-6 px-4 sm:px-6 pb-24 bg-[var(--bg-primary)]">
+      
+      {/* Top Bar Navigation */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 bg-[rgba(255,255,255,0.02)] p-2.5 sm:p-3 rounded-2xl border border-[rgba(255,255,255,0.07)]">
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            if (setCurrentView) setCurrentView('landing');
+            else window.location.reload();
+          }} 
+          className="text-xs py-1.5 px-3.5 border-[rgba(255,255,255,0.25)] text-white hover:bg-[rgba(255,255,255,0.1)] flex items-center gap-2 rounded-xl transition-all shadow-sm font-semibold"
+          title="Return to Home / Landing Page"
+        >
+          <span className="text-base leading-none">←</span>
+          <span>Back to Home</span>
+        </Button>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {!isDemoProfile ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#05C493] bg-[rgba(5,196,147,0.1)] border border-[rgba(5,196,147,0.25)] px-3 py-1 rounded-full font-semibold flex items-center gap-1.5">
+                <span>👤</span> Personal Student Profile: <strong className="text-white">{profile.name || 'Student'}</strong>
+              </span>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  if (setCurrentView) setCurrentView('onboarding');
+                }} 
+                className="text-xs py-1 px-3 border-[rgba(255,255,255,0.2)] text-[#A0A0A0] hover:text-white hover:bg-[rgba(255,255,255,0.1)] rounded-xl flex items-center gap-1"
+                title="Edit profile settings, courses, or career track"
+              >
+                ✏️ Edit Profile
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-[#EAB308] bg-[rgba(234,179,8,0.1)] border border-[rgba(234,179,8,0.25)] px-3 py-1 rounded-full font-semibold flex items-center gap-1.5">
+                <span>⚡</span> Fictional Demo Mode: <strong className="text-white">{profile.name}</strong> ({dept})
+              </span>
+              {savedPersonalProfile && (
+                <Button 
+                  variant="success" 
+                  onClick={onReturnToPersonal} 
+                  className="text-xs py-1 px-3 bg-[#05C493] hover:bg-[#04AC81] text-black font-bold flex items-center gap-1.5 rounded-xl shadow-sm cursor-pointer"
+                  title="Return to your saved personal student profile"
+                >
+                  <span>👤</span> <span>Return to My Profile ({savedPersonalProfile.name})</span>
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 border-b border-[rgba(255,255,255,0.08)] pb-6 gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(94,86,227,0.12)] border border-[rgba(94,86,227,0.25)] text-[#7E78EE] text-xs font-bold uppercase tracking-wider">
+              <span>{deptMeta.icon}</span> Selected Department: {profile.department} ({deptMeta.name})
+            </span>
+            <span className="text-[11px] text-[#05C493] bg-[rgba(5,196,147,0.1)] border border-[rgba(5,196,147,0.25)] px-2.5 py-0.5 rounded-full font-semibold">
+              {deptMeta.statusNote}
+            </span>
+          </div>
+
+          <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#7E78EE] to-[#05C493]">
+            Intelligent Course Recommendation and Guidance System
+          </h1>
+
+          <div className="text-[#94A3B8] mt-2 font-medium flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm">
+            <span>👤 <strong className="text-white">{profile.name || 'Demo Student'}</strong> ({profile.registerNumber || `${dept}-DEMO`})</span>
+            <span>•</span>
+            <span>CGPA: <strong className="text-[#05C493]">{dynamicCGPA}</strong></span>
+            <span>•</span>
+            <span>Curriculum Progress: <strong className="text-white">{creditData.totalEarned} / {creditData.catalogueCredits} Total Credits</strong> ({creditData.cataloguePercentage}%)</span>
+            <span className="text-[11px] text-[#05C493] bg-[rgba(5,196,147,0.1)] px-2.5 py-0.5 rounded-full border border-[rgba(5,196,147,0.25)] font-semibold">🎯 Target: {creditData.catalogueCredits} Credits</span>
+          </div>
+        </div>
+
+        {/* Header Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Department & Demo Student Switchers (ONLY VISIBLE IN DEMO PROFILES) */}
+          {isDemoProfile ? (
+            <>
+              {/* Quick Department Switcher */}
+              <div className="flex items-center gap-1.5 bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.08)] rounded-xl px-2.5 py-1" title="Switch Demo Department">
+                <span className="text-xs text-[#94A3B8] font-bold">Dept:</span>
+                <select value={profile.department || "ECE"} onChange={e => handleDepartmentChange(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-[#7E78EE] outline-none cursor-pointer">
+                  {Object.keys(window.DEPARTMENTS || {}).map(d => (
+                    <option key={d} value={d} className="bg-[#12121A] text-white">{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Quick Demo Student Switcher */}
+              <div className="flex items-center gap-1.5 bg-[rgba(0,0,0,0.4)] border border-[rgba(255,255,255,0.08)] rounded-xl px-2.5 py-1" title="Select and load pre-configured demo student profile">
+                <span className="text-xs text-[#94A3B8] font-bold">Demo Student:</span>
+                <select 
+                  value={profile.department || "ECE"} 
+                  onChange={e => handleSelectDemoProfile(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-[#05C493] outline-none cursor-pointer"
+                >
+                  {Object.entries(window.DEMO_PROFILES_BY_DEPARTMENT || {}).map(([dKey, p]) => (
+                    <option key={dKey} value={dKey} className="bg-[#12121A] text-white">
+                      {p.name} ({dKey} · {p.cgpa} CGPA)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {savedPersonalProfile && (
+                <Button variant="outline" onClick={onReturnToPersonal} className="text-xs py-2 px-3 border-[#05C493] text-[#05C493] hover:bg-[rgba(5,196,147,0.1)] flex items-center gap-1 font-bold" title="Return to your saved personal profile">
+                  👤 My Profile
+                </Button>
+              )}
+            </>
+          ) : (
+            /* Personal Profile: Show static Department Badge */
+            <div className="flex items-center gap-1.5 bg-[rgba(94,86,227,0.15)] border border-[rgba(94,86,227,0.3)] rounded-xl px-3 py-1.5 text-xs font-bold text-white shadow-sm">
+              <span>{deptMeta.icon}</span>
+              <span>{deptMeta.name}</span>
+              <span className="text-[#7E78EE] font-black">({dept})</span>
+            </div>
+          )}
+
+          <Button variant="outline" onClick={() => {
+            if (window.confirm("🚨 Reset profile and return to start? This will clear locally saved settings and your personal profile.")) {
+              try {
+                localStorage.removeItem('icrgs_saved_personal_profile');
+                localStorage.removeItem('icrgs_student_profile');
+                localStorage.removeItem('icrgs_active_session_profile');
+              } catch(e) {}
+              setProfile({ name: "", registerNumber: "", department: "ECE", schoolBackground: "", currentSemester: 1, cgpa: 0, careerInterests: [], preferredIndustry: "", preferredHigherStudies: "", completedCourses: {}, backlogs: [], semesterCGPA: {}, isDemo: false });
+              setCurrentView('landing');
+            }
+          }} className="border-[#EF4444] text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] text-xs py-2 px-3" title="Reset All Progress">
+            🗑️ Reset
+          </Button>
+
+          <Button variant="outline" onClick={exportToPDF} className="text-xs py-2 px-3" title="Download PDF Portfolio">📥 PDF</Button>
+          <Button variant="outline" onClick={() => {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) document.documentElement.removeAttribute('data-theme');
+            else document.documentElement.setAttribute('data-theme', 'light');
+          }} className="text-xs py-2 px-3" title="Toggle Light/Dark Theme">🌓 Theme</Button>
+          
+          <Button variant="outline" onClick={() => setGraphOpen(true)} className="text-xs py-2 px-3" title="View Prerequisite Graph">🕸️ Graph</Button>
+          <Button variant="outline" onClick={() => setWhatIfOpen(true)} className="text-xs py-2 px-3">🔮 Simulator</Button>
+          
+          <div className="relative cursor-pointer p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.1)] transition-colors" onClick={() => setAlertsOpen(true)} title="Smart Alerts">
+            <span className="text-base">🔔</span>
+            {alerts.length > 0 && <div className="absolute -top-1.5 -right-1.5 bg-[#EF4444] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-sm">{alerts.length}</div>}
+          </div>
+
+          <div className="w-8 h-8 rounded-full bg-[#5E56E3] flex items-center justify-center font-bold shadow-sm cursor-pointer text-xs" onClick={() => setCurrentView('onboarding')} title="Edit Profile Details">
+            {profile.name ? profile.name.charAt(0).toUpperCase() : '?'}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        
+        {/* Left Column: Academic Course History Checklist */}
+        <div className="xl:col-span-4 space-y-6">
+          <div className="glass-card max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <h2 className="text-xl font-bold mb-3 sticky top-0 bg-[var(--bg-card)] backdrop-blur-md py-3 border-b border-[rgba(255,255,255,0.1)] z-10 flex items-center gap-2">
+              <span className="text-2xl">📚</span> Course History ({dept})
+            </h2>
+            
+            <div className="mb-4 p-3 bg-[rgba(94,86,227,0.08)] border border-[rgba(94,86,227,0.2)] rounded-xl text-xs text-[#94A3B8] leading-relaxed">
+              📌 <strong>Curriculum Structure:</strong> {deptMeta.courseCount} courses totaling {deptMeta.catalogueCredits} credits for {dept}.
+            </div>
+
+            {categoriesList.map(categoryName => {
+              const coursesInCat = deptCourses.filter(c => c.category === categoryName);
+              if (coursesInCat.length === 0) return null;
+
+              return (
+                <div key={categoryName} className="mb-7">
+                  <h3 className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-3 border-b border-[rgba(255,255,255,0.05)] pb-1.5 flex items-center gap-2">
+                    {categoryName.includes('Foundation') ? '🏗️' : categoryName.includes('Elective') ? '🎯' : '⚙️'} {categoryName}
+                  </h3>
+
+                  {coursesInCat.map(c => {
+                    const compData = profile.completedCourses?.[c.code];
+                    const isPassed = compData && compData.grade && compData.grade !== 'F' && compData.grade !== 'Not Attempted';
+                    const isBacklog = (profile.backlogs || []).includes(c.code) || compData?.grade === 'F';
+                    const prereqCheck = window.checkPrerequisites(c.code, profile.completedCourses, profile.backlogs, dept);
+
+                    return (
+                      <div key={c.code} className={`mb-3 p-3.5 border rounded-xl transition-colors ${isPassed ? 'bg-[rgba(5,196,147,0.03)] border-[rgba(5,196,147,0.25)]' : isBacklog ? 'bg-[rgba(239,68,68,0.04)] border-[rgba(239,68,68,0.25)]' : 'bg-[rgba(0,0,0,0.25)] border-[rgba(255,255,255,0.05)]'}`}>
+                        <div className="flex justify-between items-start mb-2.5">
+                          <div className="cursor-pointer group flex-1" onClick={() => setSelectedCourse(c)}>
+                            <div className="text-sm font-bold code-font text-[#7E78EE] group-hover:underline flex items-center gap-2">
+                              {c.code}
+                              <span className="text-[#94A3B8] text-[10px] font-normal bg-[rgba(255,255,255,0.05)] px-1.5 py-0.5 rounded tracking-wider">{c.credits} Credits · {c.category}</span>
+                            </div>
+                            <div className="text-xs text-[#E2E8F0] mt-1 leading-snug">{c.name}</div>
+                          </div>
+                        </div>
+
+                        {/* Grade Toggles */}
+                        <div className="flex gap-1 mb-2 bg-[rgba(0,0,0,0.3)] p-1 rounded-lg">
+                          {['O', 'A+', 'A', 'B+', 'B', 'C', 'F'].map(g => {
+                            const isSelected = compData?.grade === g;
+                            return (
+                              <button key={g} onClick={() => toggleGrade(c.code, g)} 
+                                className={`flex-1 py-1 rounded text-[10px] font-bold transition-all ${isSelected ? (g === 'F' ? 'bg-[#EF4444] text-white shadow-sm' : 'bg-[#05C493] text-white font-bold shadow-sm') : 'text-[#94A3B8] hover:bg-[rgba(255,255,255,0.08)]'}`}>
+                                {g}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Prerequisite Tags & Eligibility */}
+                        {c.prerequisites && c.prerequisites.length > 0 && (
+                          <div className="text-[10px] text-[#94A3B8] mt-2 border-t border-[rgba(255,255,255,0.05)] pt-2 space-y-1">
+                            <div className="flex flex-wrap gap-1 items-center">
+                              <span className="text-white font-medium">Prereqs:</span>
+                              {c.prerequisites.map(p => {
+                                const pPassed = profile.completedCourses?.[p] && profile.completedCourses[p].grade !== 'F' && profile.completedCourses[p].grade !== 'Not Attempted';
+                                return <span key={p} className="code-font bg-[rgba(255,255,255,0.05)] px-1 rounded">{p} {pPassed ? '✅' : '❌'}</span>;
+                              })}
+                            </div>
+                            {!prereqCheck.eligible ? (
+                              <div className="text-[#EF4444] font-bold bg-[rgba(239,68,68,0.1)] inline-block px-1.5 py-0.5 rounded mt-0.5">Status: 🔒 Locked</div>
+                            ) : (
+                              <div className="text-[#05C493] font-bold bg-[rgba(5,196,147,0.1)] inline-block px-1.5 py-0.5 rounded mt-0.5">Status: ✅ Eligible</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Center & Right Column: Analytics, Roadmap, Recommendations */}
+        <div className="xl:col-span-8 space-y-8">
+          
+          {/* Top Metrics Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="glass-card flex items-center gap-4">
+              <div className="relative w-16 h-16 flex-shrink-0">
+                <svg viewBox="0 0 36 36" className="w-full h-full drop-shadow-sm">
+                  <path strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4"/>
+                  <path strokeDasharray={`${Math.min(100, creditData.cataloguePercentage)}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#5E56E3" strokeWidth="4" style={{transition: 'stroke-dasharray 1s ease'}}/>
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">{creditData.cataloguePercentage}%</div>
+              </div>
+              <div>
+                <div className="text-xs text-[#94A3B8] font-bold uppercase tracking-wider">Curriculum Credit Progress</div>
+                <div className="text-xl font-bold text-white">{creditData.totalEarned} / {creditData.catalogueCredits} <span className="text-xs font-normal text-[#05C493]">Total Credits</span></div>
+                <div className="text-[11px] text-[#94A3B8] mt-0.5">{Math.max(0, creditData.catalogueCredits - creditData.totalEarned)} credits remaining across {Math.max(0, deptCourses.length - Object.keys(profile.completedCourses || {}).length)} courses</div>
+              </div>
+            </div>
+
+            <div className="glass-card flex flex-col justify-center">
+              <div className="text-xs text-[#94A3B8] font-bold uppercase tracking-wider mb-1">Active Backlogs</div>
+              <div className="text-3xl font-bold text-[#EF4444]">{(profile.backlogs || []).length}</div>
+              <div className="text-xs text-[#94A3B8] mt-1">
+                {(profile.backlogs || []).length === 0 ? "No active backlogs blocking courses" : `Affecting subsequent courses in ${dept}`}
+              </div>
+            </div>
+
+            <div className="glass-card flex flex-col justify-center">
+              <div className="text-xs text-[#94A3B8] font-bold uppercase tracking-wider mb-1">Career Pathway Course Progress</div>
+              <div className="text-3xl font-bold text-[#EAB308]">
+                {profile.careerInterests?.[0] ? window.calcTrackReadiness(profile.careerInterests[0], profile.completedCourses, profile.backlogs, dept) : 0}%
+              </div>
+              <div className="text-xs text-[#94A3B8] mt-1 truncate" title="Percentage of recommended coursework completed along selected pathway">
+                Track: {profile.careerInterests?.[0] || 'Select Pathway'}
+              </div>
+            </div>
+          </div>
+
+          {/* Goal & Elective Matcher */}
+          <div className="glass-card">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2 text-white"><span className="text-2xl">🎯</span> Elective & Career Matcher ({dept})</h2>
+                <p className="text-[#94A3B8] text-xs mt-1">Rule & keyword search across {dept} career tracks, course descriptions, and learned skillsets (runs 100% locally in browser without external AI API).</p>
+              </div>
+            </div>
+            <div className="relative my-4">
+              <input type="text" placeholder={`Search ${dept} courses (e.g., AI, cloud, robotics, circuits, design, algorithms...)`} 
+                className="w-full bg-[rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] text-white p-3.5 rounded-xl outline-none focus:border-[#5E56E3] transition-colors" 
+                value={keywordQuery} onChange={e => setKeywordQuery(e.target.value)} />
+              <div className="absolute right-4 top-3.5 text-lg pointer-events-none opacity-50">🔍</div>
+            </div>
+            
+            {keywordQuery.trim().length >= 2 && keywordMatches.length === 0 && (
+              <div className="p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.08)] text-center text-sm text-[#94A3B8]">
+                <p className="font-semibold text-white mb-1">No matching courses found for "{keywordQuery}" in {dept}</p>
+                <p className="text-xs">Try searching for broader domain terms or check other engineering departments.</p>
+              </div>
+            )}
+
+            {keywordMatches.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 animate-[fadeIn_0.4s_ease]">
+                {keywordMatches.map((match, idx) => (
+                  <div key={idx} className="border border-[rgba(255,255,255,0.1)] rounded-xl p-3.5 bg-[rgba(0,0,0,0.2)] hover:bg-[rgba(255,255,255,0.02)] transition-colors cursor-pointer" onClick={() => setSelectedCourse(match.course)}>
+                    <div className="flex justify-between items-start mb-1.5">
+                      <div>
+                        <h3 className="font-bold text-sm text-white hover:text-[#7E78EE] transition-colors"><span className="code-font text-[#7E78EE]">{match.course.code}</span> · {match.course.name}</h3>
+                        <div className="text-[10px] text-[#94A3B8] mt-0.5">{match.course.category} · {match.course.credits} Credits</div>
+                      </div>
+                      <div className="text-[11px] font-bold bg-[rgba(94,86,227,0.15)] text-[#7E78EE] px-2 py-0.5 rounded">Score: {match.score}</div>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[rgba(255,255,255,0.05)] text-[11px]">
+                      <div className="text-[#94A3B8] truncate max-w-[200px]">Matched: {match.matchedTerms.slice(0, 3).join(", ")}</div>
+                      {!match.eligible ? (
+                        <span className="text-[#EF4444] font-bold">🔒 Locked</span>
+                      ) : (
+                        <span className="text-[#05C493] font-bold">✅ Eligible</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* SVG Interactive Roadmap */}
+          <div className="glass-card">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2"><span className="text-2xl">🗺️</span> Interactive Pathway Roadmap</h2>
+              <select className="bg-[rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.1)] text-xs p-2 rounded-xl text-white outline-none focus:border-[#5E56E3]" 
+                value={profile.careerInterests?.[0] || Object.keys(deptTracks)[0] || ''} 
+                onChange={e => setProfile({...profile, careerInterests: [e.target.value]})}>
+                {Object.keys(deptTracks).map(k => <option key={k} value={k}>{k}</option>)}
+              </select>
+            </div>
+            {profile.careerInterests?.[0] && (
+              <RoadmapView trackId={profile.careerInterests[0]} completedCourses={profile.completedCourses} backlogs={profile.backlogs} department={dept} setSelectedCourse={setSelectedCourse} />
+            )}
+          </div>
+
+          {/* Recommended Next Courses */}
+          <div className="glass-card">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><span className="text-2xl">💡</span> Recommended Next For You ({dept})</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recommendations.slice(0, 4).map(rec => (
+                <div key={rec.course.code} className="border border-[rgba(255,255,255,0.1)] rounded-xl p-4 bg-[rgba(0,0,0,0.2)] hover:bg-[rgba(255,255,255,0.02)] transition-colors cursor-pointer group" onClick={() => setSelectedCourse(rec.course)}>
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      {rec.isFoundation && <div className="text-[#EAB308] text-[10px] font-bold mb-1.5 uppercase tracking-wider bg-[rgba(234,179,8,0.1)] inline-block px-2 py-0.5 rounded">🌟 Foundation Priority</div>}
+                      <h3 className="font-bold text-base group-hover:text-[#7E78EE] transition-colors"><span className="code-font text-[#7E78EE]">{rec.course.code}</span> · {rec.course.name}</h3>
+                      <div className="text-[11px] text-[#94A3B8] mt-0.5">{rec.course.category} · {rec.course.credits} Credits</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-[#94A3B8] space-y-1 mt-3">
+                    {rec.reasons.slice(0, 2).map((r, i) => <div key={i} className="truncate">{r}</div>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Button variant="outline" onClick={() => setShowAnalytics(!showAnalytics)} className="w-full py-3.5 text-base">
+            📊 {showAnalytics ? 'Hide SaaS Analytics' : 'Open SaaS Analytics Dashboard'}
+          </Button>
+
+          {/* SaaS Analytics Dashboard */}
+          {showAnalytics && window.Recharts && (
+            <div className="space-y-6 animate-[fadeIn_0.5s_ease]">
+              
+              {/* Row 1: Pie and Bar Charts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="glass-card h-80 flex flex-col">
+                  <h3 className="text-xs font-bold text-[#94A3B8] mb-2 uppercase tracking-widest text-center">Course Status Breakdown ({dept})</h3>
+                  <div className="flex-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={pieData} dataKey="value" innerRadius={55} outerRadius={75} stroke="none" paddingAngle={4}>
+                          {pieData.map((entry, i) => <Cell key={`cell-${i}`} fill={entry.fill} />)}
+                        </Pie>
+                        <Tooltip contentStyle={{backgroundColor:'rgba(20,20,20,0.95)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px', color:'#fff'}} itemStyle={{color: '#fff'}} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex justify-center gap-3 text-[11px] mt-2">
+                    {pieData.map((d, i) => (
+                      <span key={i} className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{backgroundColor: d.fill}}></span> {d.name}: <strong>{d.value}</strong></span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass-card h-80 flex flex-col">
+                  <h3 className="text-xs font-bold text-[#94A3B8] mb-2 uppercase tracking-widest text-center">Completed Grade Performance</h3>
+                  <div className="flex-1">
+                    {barData.length === 0 ? (
+                      <div className="h-full flex items-center justify-center text-xs text-[#94A3B8]">No completed grades recorded yet.</div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={barData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                          <XAxis dataKey="course" tick={{fontSize: 9, fill: '#94A3B8'}} interval={0} angle={-45} textAnchor="end" height={50} axisLine={false} tickLine={false}/>
+                          <YAxis domain={[0, 10]} tick={{fontSize: 9, fill: '#94A3B8'}} axisLine={false} tickLine={false}/>
+                          <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor:'rgba(20,20,20,0.95)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px'}} itemStyle={{color: '#fff'}} />
+                          <Bar dataKey="points" radius={[4, 4, 0, 0]}>
+                            {barData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.points >= 8 ? '#05C493' : entry.points >= 6 ? '#EAB308' : '#EF4444'} />)}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Radar and Horizontal Stacked Bar */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="glass-card h-80 flex flex-col">
+                  <h3 className="text-xs font-bold text-[#94A3B8] mb-2 uppercase tracking-widest text-center">Career Pathway Course Progress Radar</h3>
+                  <div className="flex-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
+                        <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                        <PolarAngleAxis dataKey="track" tick={{fill: '#FFFFFF', fontSize: 10, fontWeight: 'bold'}} />
+                        <Radar name="Pathway Progress" dataKey="readiness" stroke="#5E56E3" strokeWidth={2} fill="#5E56E3" fillOpacity={0.4} />
+                        <Tooltip contentStyle={{backgroundColor:'rgba(20,20,20,0.95)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px'}} itemStyle={{color: '#fff'}} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="glass-card h-80 flex flex-col">
+                  <h3 className="text-xs font-bold text-[#94A3B8] mb-2 uppercase tracking-widest text-center">Category Credit Distribution ({creditData.catalogueCredits} Total Credits)</h3>
+                  <div className="flex-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stackedBarData} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                        <XAxis type="number" tick={{fontSize: 9, fill: '#94A3B8'}} axisLine={false} tickLine={false}/>
+                        <YAxis dataKey="category" type="category" width={85} tick={{fontSize: 9, fill: '#94A3B8'}} axisLine={false} tickLine={false}/>
+                        <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor:'rgba(20,20,20,0.95)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px'}} itemStyle={{color: '#fff'}} />
+                        <Legend iconType="circle" wrapperStyle={{fontSize: '11px', color: '#94A3B8'}} />
+                        <Bar dataKey="Earned" stackId="a" fill="#5E56E3" />
+                        <Bar dataKey="Remaining" stackId="a" fill="rgba(255,255,255,0.12)" radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+        </div>
+      </div>
+
+      <CourseDetailModal course={selectedCourse} onClose={() => setSelectedCourse(null)} studentProfile={profile} />
+      
+      {/* Smart Alerts Slide-Over Panel */}
+      <div className={`slide-panel ${alertsOpen ? 'open' : ''}`}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Academic Smart Alerts</h2>
+          <button onClick={() => setAlertsOpen(false)} className="text-2xl text-[#94A3B8] hover:text-white">&times;</button>
+        </div>
+        <div className="space-y-3.5">
+          {alerts.length === 0 ? <p className="text-[#94A3B8] text-center mt-10 text-xs">All clear! No active academic alerts.</p> : alerts.map((a, i) => (
+            <div key={i} className={`p-3.5 rounded-xl border backdrop-blur-sm shadow-md ${a.type==='danger'?'border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.04)]': a.type==='warning'?'border-[rgba(234,179,8,0.25)] bg-[rgba(234,179,8,0.04)]': 'border-[rgba(94,86,227,0.25)] bg-[rgba(94,86,227,0.04)]'}`}>
+              <div className="flex gap-3">
+                <span className="text-2xl">{a.icon}</span>
+                <div>
+                  <h4 className="font-bold text-xs text-white mb-0.5">{a.title}</h4>
+                  <p className="text-[11px] text-[#94A3B8] leading-relaxed">{a.body}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* What-If Planner Modal */}
+      {whatIfOpen && (
+        <div className="modal-overlay" onClick={() => setWhatIfOpen(false)}>
+          <div className="glass-card w-full max-w-3xl m-4 p-6 sm:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">🔮</span>
+                <h2 className="text-2xl font-bold text-white">What-If Academic Simulator ({dept})</h2>
+              </div>
+              <button onClick={() => setWhatIfOpen(false)} className="text-2xl text-[#94A3B8] hover:text-white">&times;</button>
+            </div>
+            <p className="text-[#94A3B8] text-xs mb-4">Simulate your upcoming courses to model weighted CGPA changes and check prerequisite unlocks without modifying your saved profile.</p>
+            
+            <div className="p-3 bg-[rgba(94,86,227,0.1)] border border-[rgba(94,86,227,0.25)] rounded-xl text-xs text-[#E2E8F0] mb-5 flex flex-wrap items-center justify-between gap-2">
+              <span>📝 <strong>Simulation Benchmark:</strong> Assumes Grade <strong>'A' (8.0 grade points)</strong> for each simulated course.</span>
+              <span className="text-[#05C493] font-bold">Selected: {plannedCourses.length} course(s)</span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div className="text-xs font-bold text-white mb-2.5 uppercase tracking-wider bg-[rgba(255,255,255,0.1)] inline-block px-2.5 py-1 rounded-full border border-[rgba(255,255,255,0.1)]">Select Eligible Courses</div>
+                <div className="h-64 overflow-y-auto border border-[rgba(255,255,255,0.1)] p-2.5 rounded-xl bg-[rgba(0,0,0,0.3)] custom-scrollbar space-y-1.5">
+                  {deptCourses.filter(c => {
+                    const comp = profile.completedCourses?.[c.code];
+                    const isPassed = comp && comp.grade && comp.grade !== 'F' && comp.grade !== 'Not Attempted';
+                    const isBacklog = (profile.backlogs || []).includes(c.code);
+                    if (isPassed || isBacklog) return false;
+                    return window.checkPrerequisites(c.code, profile.completedCourses, profile.backlogs, dept).eligible;
+                  }).map(c => (
+                    <label key={c.code} className={`flex items-start gap-2.5 cursor-pointer text-xs p-2 rounded-lg transition-colors border ${plannedCourses.includes(c.code) ? 'bg-[rgba(94,86,227,0.15)] border-[#5E56E3]' : 'hover:bg-[rgba(255,255,255,0.05)] border-transparent'}`}>
+                      <input type="checkbox" className="mt-0.5 accent-[#5E56E3]" checked={plannedCourses.includes(c.code)} onChange={(e) => {
+                        if (e.target.checked) setPlannedCourses([...plannedCourses, c.code]);
+                        else setPlannedCourses(plannedCourses.filter(x => x !== c.code));
+                      }}/>
+                      <div>
+                        <div className="code-font text-white font-bold">{c.code} · {c.credits} Cr</div>
+                        <div className="text-[11px] text-[#94A3B8]">{c.name}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <Button className="w-full mt-4 py-2.5 text-sm" onClick={handleSimulate} disabled={plannedCourses.length === 0}>Run Simulation</Button>
+              </div>
+
+              <div>
+                <div className="text-xs font-bold text-[#05C493] mb-2.5 uppercase tracking-wider bg-[rgba(5,196,147,0.1)] inline-block px-2.5 py-1 rounded-full border border-[#05C493]">Simulation Results</div>
+                <div className="h-[290px] overflow-y-auto border border-[rgba(5,196,147,0.2)] p-4 rounded-xl bg-[rgba(5,196,147,0.02)] custom-scrollbar">
+                  {!simulationResult ? <div className="text-center text-[#94A3B8] mt-24 text-xs">Select eligible courses and click "Run Simulation" to model projected metrics.</div> : (
+                    <div className="space-y-3.5 animate-[fadeIn_0.4s_ease]">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-[rgba(0,0,0,0.4)] p-2.5 rounded-lg border border-[rgba(255,255,255,0.05)] text-center">
+                          <div className="text-[10px] text-[#94A3B8] uppercase font-bold mb-0.5">Credits Earned</div>
+                          <div className="text-base font-bold text-white">{simulationResult.currentTotalCredits} <span className="text-[#7E78EE] mx-1">→</span> <span className="text-[#05C493]">{simulationResult.predictedTotalCredits}</span></div>
+                          <div className="text-[10px] text-[#94A3B8]">+{simulationResult.simulatedCreditsCount} cr added</div>
+                        </div>
+                        <div className="bg-[rgba(0,0,0,0.4)] p-2.5 rounded-lg border border-[rgba(255,255,255,0.05)] text-center">
+                          <div className="text-[10px] text-[#94A3B8] uppercase font-bold mb-0.5">Catalogue %</div>
+                          <div className="text-base font-bold text-white">{simulationResult.currentCatalogueGradPct}% <span className="text-[#7E78EE] mx-1">→</span> <span className="text-[#05C493]">{simulationResult.predictedCatalogueGradPct}%</span></div>
+                          <div className="text-[10px] text-[#94A3B8]">Degree: {simulationResult.predictedGradPct}%</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-[rgba(0,0,0,0.4)] p-3 rounded-lg border border-[rgba(255,255,255,0.05)] flex flex-col justify-center">
+                           <div className="text-[10px] text-[#94A3B8] uppercase font-bold mb-0.5">Weighted CGPA</div>
+                           <div className="text-xl font-bold text-white">{simulationResult.currentCGPA} <span className="text-[#7E78EE] mx-1">→</span> <span className="text-[#05C493]">{simulationResult.predictedCGPA}</span></div>
+                           <div className="text-[9px] text-[#94A3B8] mt-1 leading-snug">{simulationResult.methodology}</div>
+                        </div>
+
+                        <div className="bg-[rgba(0,0,0,0.4)] p-3 rounded-lg border border-[rgba(255,255,255,0.05)] flex flex-col justify-center">
+                           <div className="text-[10px] text-[#94A3B8] uppercase font-bold mb-0.5">Pathway Course Progress</div>
+                           <div className="text-xl font-bold text-white">{simulationResult.currentCareerReady}% <span className="text-[#7E78EE] mx-1">→</span> <span className="text-[#EAB308]">{simulationResult.predictedCareerReady}%</span></div>
+                           <div className="text-[9px] text-[#94A3B8] mt-1">Assumes grade 'A' (8.0 pts)</div>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-[rgba(255,255,255,0.1)] pt-3 mt-3">
+                        <div className="text-xs font-bold text-white mb-1.5 tracking-wider uppercase">🔓 Newly Unlocked Courses:</div>
+                        {simulationResult.newlyUnlocked.length === 0 ? <div className="text-xs text-[#94A3B8] bg-[rgba(0,0,0,0.3)] p-2 rounded">No subsequent courses unlocked by this selection.</div> : (
+                          <ul className="text-xs text-[#05C493] space-y-1.5">
+                            {simulationResult.newlyUnlocked.map(c => (
+                              <li key={c.code} className="bg-[rgba(5,196,147,0.06)] border border-[rgba(5,196,147,0.2)] p-2 rounded flex items-center gap-2">
+                                <span className="code-font font-bold">{c.code}</span>
+                                <span className="text-[#E2E8F0] truncate">{c.name}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      )}
+
+      {graphOpen && <CurriculumGraph profile={profile} onClose={() => setGraphOpen(false)} setSelectedCourse={setSelectedCourse} />}
+    </div>
+  );
+}
+
+// ── Sample Fictional Profile for Demo (ECE Alex Morgan) ────────
+// Mathematical Verification: 11 passing courses x 4 credits = 44 credits totaling 376 grade points: 376 / 44 = 8.55 CGPA
+const SAMPLE_DEMO_PROFILE = {
+  name: "Alex Morgan",
+  registerNumber: "ECE-2024-DEMO",
+  department: "ECE",
+  schoolBackground: "Pure Science",
+  currentSemester: 4,
+  cgpa: 8.55,
+  careerInterests: ["VLSI & Chip Design"],
+  preferredIndustry: "Semiconductors & Telecommunications",
+  preferredHigherStudies: "MS in Microelectronics / RF Systems",
+  completedCourses: {
+    "UBA01": { grade: "A", semester: 1, credits: 4 },
+    "UBA48": { grade: "B", semester: 1, credits: 4 },
+    "UBA49": { grade: "A", semester: 1, credits: 4 },
+    "UBA28": { grade: "B", semester: 1, credits: 4 },
+    "BTA01": { grade: "B", semester: 1, credits: 4 },
+    "CSA07": { grade: "A", semester: 1, credits: 4 },
+    "UBA06": { grade: "B", semester: 2, credits: 4 },
+    "UBA04": { grade: "B", semester: 2, credits: 4 },
+    "EEA01": { grade: "A", semester: 2, credits: 4 },
+    "ECA02": { grade: "B", semester: 2, credits: 4 },
+    "CSA08": { grade: "S", semester: 2, credits: 4 }
+  },
+  backlogs: [],
+  semesterCGPA: { 1: 8.50, 2: 8.60, 3: 8.55 }
+};
+
+// ── Storage Keys Configuration ────────────────────────────────
+const PERSONAL_PROFILE_KEY = 'icrgs_saved_personal_profile';
+const ACTIVE_PROFILE_KEY = 'icrgs_active_session_profile';
+const LEGACY_PROFILE_KEY = 'icrgs_student_profile';
+
+const getStoredPersonalProfile = () => {
+  try {
+    const raw = localStorage.getItem(PERSONAL_PROFILE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p && p.name && !p.isDemo && !(p.registerNumber && p.registerNumber.includes("DEMO"))) {
+        return p;
+      }
+    }
+    const legacy = localStorage.getItem(LEGACY_PROFILE_KEY);
+    if (legacy) {
+      const p = JSON.parse(legacy);
+      const isDemo = Boolean(p.isDemo || (p.registerNumber && p.registerNumber.includes("DEMO")) ||
+        (window.DEMO_PROFILES_BY_DEPARTMENT && Object.values(window.DEMO_PROFILES_BY_DEPARTMENT).some(dp => dp.name === p.name && dp.department === p.department)));
+      if (!isDemo && p.name && p.department) {
+        return p;
+      }
+    }
+  } catch (e) {
+    console.warn("Storage read error:", e);
+  }
+  return null;
+};
+
+// ── Main App Root ──────────────────────────────────────────────
+function App() {
+  const [profile, setProfile] = useState(() => {
+    try {
+      const activeRaw = localStorage.getItem(ACTIVE_PROFILE_KEY);
+      if (activeRaw) {
+        const parsed = JSON.parse(activeRaw);
+        if (parsed && parsed.department) {
+          const isDemoCalculated = parsed.isDemo !== undefined ? Boolean(parsed.isDemo) : Boolean(
+            (parsed.registerNumber && parsed.registerNumber.includes("DEMO")) ||
+            (window.DEMO_PROFILES_BY_DEPARTMENT && Object.values(window.DEMO_PROFILES_BY_DEPARTMENT).some(p => p.name === parsed.name && p.department === parsed.department))
+          );
+          return {
+            name: parsed.name || "",
+            registerNumber: parsed.registerNumber || "",
+            department: parsed.department || "ECE",
+            schoolBackground: parsed.schoolBackground || "",
+            currentSemester: parsed.currentSemester || 1,
+            cgpa: parsed.cgpa !== undefined ? parsed.cgpa : 0,
+            careerInterests: parsed.careerInterests || [],
+            preferredIndustry: parsed.preferredIndustry || "",
+            preferredHigherStudies: parsed.preferredHigherStudies || "",
+            completedCourses: parsed.completedCourses || {},
+            backlogs: parsed.backlogs || [],
+            semesterCGPA: parsed.semesterCGPA || {},
+            isDemo: isDemoCalculated
+          };
+        }
+      }
+      
+      const personal = getStoredPersonalProfile();
+      if (personal) {
+        return { ...personal, isDemo: false };
+      }
+    } catch (e) {
+      console.warn("Local storage retrieval error:", e);
+    }
+    return {
+      name: "", registerNumber: "", department: "ECE", schoolBackground: "", currentSemester: 1, cgpa: 0,
+      careerInterests: [], preferredIndustry: "", preferredHigherStudies: "",
+      completedCourses: {}, backlogs: [], semesterCGPA: {},
+      isDemo: false
+    };
+  });
+
+  const [currentView, setCurrentView] = useState('landing');
+
+  // Push state & popstate support for browser Back/Forward navigation
+  const navigateTo = (view) => {
+    if (view === currentView) return;
+    try {
+      window.history.pushState({ view }, '');
+    } catch(e) {}
+    setCurrentView(view);
+  };
+
+  useEffect(() => {
+    try {
+      if (!window.history.state || !window.history.state.view) {
+        window.history.replaceState({ view: 'landing' }, '');
+      }
+    } catch(e) {}
+
+    const handlePopState = (event) => {
+      const targetView = event.state?.view || 'landing';
+      setCurrentView(targetView);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const savedPersonalProfile = useMemo(() => {
+    return getStoredPersonalProfile();
+  }, [profile, currentView]);
+
+  const hasSavedProfile = Boolean(savedPersonalProfile);
+
+  const savedProfileMeta = useMemo(() => {
+    if (savedPersonalProfile) {
+      return { 
+        name: savedPersonalProfile.name, 
+        dept: savedPersonalProfile.department
+      };
+    }
+    return null;
+  }, [savedPersonalProfile]);
+
+  useEffect(() => {
+    if (currentView === 'dashboard') {
+      try {
+        localStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify(profile));
+        // ONLY update personal profile storage if this profile is NOT a demo!
+        if (!profile.isDemo && !(profile.registerNumber && profile.registerNumber.includes("DEMO")) && profile.name) {
+          localStorage.setItem(PERSONAL_PROFILE_KEY, JSON.stringify(profile));
+          localStorage.setItem(LEGACY_PROFILE_KEY, JSON.stringify(profile));
+        }
+      } catch (e) {
+        console.warn("Could not persist to localStorage:", e);
+      }
+    }
+  }, [profile, currentView]);
+
+  const handleContinueSaved = () => {
+    const saved = getStoredPersonalProfile();
+    if (saved) {
+      setProfile({ ...saved, isDemo: false });
+      try {
+        localStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ ...saved, isDemo: false }));
+      } catch (e) {}
+    }
+    navigateTo('dashboard');
+  };
+
+  const handleReturnToPersonal = () => {
+    const saved = getStoredPersonalProfile();
+    if (saved) {
+      setProfile({ ...saved, isDemo: false });
+      try {
+        localStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ ...saved, isDemo: false }));
+      } catch (e) {}
+    }
+    navigateTo('dashboard');
+  };
+
+  const handleCreateNew = () => {
+    setProfile({
+      name: "", registerNumber: "", department: "ECE", schoolBackground: "", currentSemester: 1, cgpa: 0,
+      careerInterests: [], preferredIndustry: "", preferredHigherStudies: "",
+      completedCourses: {}, backlogs: [], semesterCGPA: {},
+      isDemo: false
+    });
+    navigateTo('onboarding');
+  };
+
+  const handleLoadDemo = (deptKey = "ECE") => {
+    const demo = (window.getDepartmentDemoProfile && window.getDepartmentDemoProfile(deptKey)) || SAMPLE_DEMO_PROFILE;
+    const demoWithFlag = { ...demo, isDemo: true };
+    setProfile(demoWithFlag);
+    try {
+      localStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify(demoWithFlag));
+    } catch (e) {
+      console.warn("Could not save demo profile to localStorage", e);
+    }
+    navigateTo('dashboard');
+  };
+
+  if (currentView === 'landing') {
+    return (
+      <LandingPage 
+        onContinueSaved={handleContinueSaved} 
+        onCreateNew={handleCreateNew} 
+        onLoadDemo={handleLoadDemo} 
+        hasSavedProfile={hasSavedProfile}
+        savedProfileMeta={savedProfileMeta}
+      />
+    );
+  }
+
+  if (currentView === 'onboarding') {
+    return (
+      <Onboarding 
+        profile={profile} 
+        setProfile={setProfile} 
+        onComplete={() => {
+          const personalProfile = { ...profile, isDemo: false };
+          setProfile(personalProfile);
+          try {
+            localStorage.setItem(PERSONAL_PROFILE_KEY, JSON.stringify(personalProfile));
+            localStorage.setItem(LEGACY_PROFILE_KEY, JSON.stringify(personalProfile));
+            localStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify(personalProfile));
+          } catch(e) {}
+          navigateTo('dashboard');
+        }} 
+        onLoadDemo={handleLoadDemo} 
+        onBackToLanding={() => navigateTo('landing')}
+      />
+    );
+  }
+
+  return (
+    <Dashboard 
+      profile={profile} 
+      setProfile={setProfile} 
+      setCurrentView={navigateTo} 
+      savedPersonalProfile={savedPersonalProfile}
+      onReturnToPersonal={handleReturnToPersonal}
+    />
+  );
+}
+
+// ── Error Boundary Component (Prevents Black Screen) ───────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught error:", error, errorInfo);
+  }
+  handleReset() {
+    try {
+      localStorage.removeItem('icrgs_saved_personal_profile');
+      localStorage.removeItem('icrgs_student_profile');
+      localStorage.removeItem('icrgs_active_session_profile');
+    } catch(e) {}
+    window.location.reload();
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-6 bg-[#0B0E14] text-white">
+          <div className="max-w-md w-full p-6 rounded-2xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-center shadow-2xl">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold mb-2">Display Notice</h2>
+            <p className="text-sm text-[#94A3B8] mb-6">
+              A temporary display error occurred. You can reset to the verified demo profile or reload the page.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button onClick={() => this.handleReset()} className="px-5 py-2.5 rounded-xl bg-[#5E56E3] hover:bg-[#4F46E5] text-white text-sm font-bold shadow-md transition-transform hover:scale-105">
+                Reset Demo State & Reload
+              </button>
+              <button onClick={() => window.location.reload()} className="px-5 py-2.5 rounded-xl border border-[rgba(255,255,255,0.2)] text-white text-sm hover:bg-[rgba(255,255,255,0.05)]">
+                Reload
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
+    </script>
+</body>
+</html>
